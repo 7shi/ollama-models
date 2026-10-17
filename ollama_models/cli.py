@@ -228,21 +228,31 @@ def parse_name(s):
 
 
 def blobs_of(store, mf):
-    """List the blob digests a manifest references, including manifest-list children."""
+    """List the blob digests a manifest references, including manifest-list children.
+
+    ollama pulls only the children for its own runner, so children whose manifest
+    blob is absent are skipped. Raise if no child is present at all.
+    """
     digests = []
     cfg = (mf.get("config") or {}).get("digest")
     if cfg:
         digests.append(cfg)
     digests += [l["digest"] for l in (mf.get("layers") or []) if l.get("digest")]
-    for child in mf.get("manifests") or []:
+    children = mf.get("manifests") or []
+    present = 0
+    for child in children:
         if child.get("digest"):
-            digests.append(child["digest"])
             loaded = store.read_blob_manifest(child["digest"])
             if not loaded:
-                raise FileNotFoundError(f"child manifest blob not found: {child['digest']}")
+                continue
+            digests.append(child["digest"])
             digests += blobs_of(store, loaded[0])
         else:
             digests += blobs_of(store, child)
+        present += 1
+    if children and not present:
+        raise FileNotFoundError("no child manifest blob found: "
+                                + ", ".join(c.get("digest", "?") for c in children))
     return list(dict.fromkeys(digests))
 
 
