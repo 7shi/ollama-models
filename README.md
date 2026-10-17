@@ -80,6 +80,10 @@ it. Both use the same process: build a plan first, then apply it.
   anything is written for it, and the other models are still processed.
 - Files are written to a `.partial` file and renamed into place, so an
   interrupted run does not leave a half-written model.
+- Each copied model is reported with a summary such as
+  `copied gemma2:27b (2/4 blobs, 1 metadata)`: 2 of the 4 blobs the model
+  references were copied (the rest already existed in the destination, often
+  shared with another model), and 1 metadata cache file was copied.
 - When a model is overwritten, its old blobs and metadata are deleted if no other
   model references them. If any manifest in the destination cannot be read, no
   cleanup is done.
