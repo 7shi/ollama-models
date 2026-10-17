@@ -129,13 +129,13 @@ class Store:
 
 
 def manifest_size(mf):
-    return sum(l.get("size", 0) for l in mf.get("layers", []) + [mf.get("config") or {}])
+    return sum(l.get("size", 0) for l in (mf.get("layers") or []) + [mf.get("config") or {}])
 
 
 def select_child(store, parent):
     """Pick the child of a manifest list for the most preferred runner present locally."""
     for runner in RUNNER_PREFERENCES:
-        for child in parent.get("manifests", []):
+        for child in parent.get("manifests") or []:
             if (child.get("runner") or "").lower() != runner:
                 continue
             if child.get("mediaType") not in (None, "",
@@ -231,8 +231,8 @@ def blobs_of(store, mf):
     cfg = (mf.get("config") or {}).get("digest")
     if cfg:
         digests.append(cfg)
-    digests += [l["digest"] for l in mf.get("layers", []) if l.get("digest")]
-    for child in mf.get("manifests", []):
+    digests += [l["digest"] for l in (mf.get("layers") or []) if l.get("digest")]
+    for child in mf.get("manifests") or []:
         if child.get("digest"):
             digests.append(child["digest"])
             loaded = store.read_blob_manifest(child["digest"])

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `cp`/`merge` crashed with `TypeError` on cloud models (`*-cloud` tags),
+  whose manifests have `"layers": null`.
+
 ## [0.1.0] - 2026-10-18
 
 ### Added
