@@ -25,6 +25,8 @@ import sys
 import time
 from pathlib import Path
 
+from . import __version__
+
 DEFAULT_HOST = "registry.ollama.ai"
 DEFAULT_NAMESPACE = "library"
 PUBLIC_HOSTS = {"registry.ollama.ai", "ollama.com"}
@@ -513,6 +515,7 @@ def add_copy_options(p):
 
 def main():
     ap = argparse.ArgumentParser(description="Inspect and manage Ollama model stores directly from the models directory")
+    ap.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     sub = ap.add_subparsers(dest="command", required=True)
 
     p = sub.add_parser("ls", help="list models (like `ollama list`)")
