@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-10-18
+
 ### Changed
 
 - `cp` / `merge` print each model's name and size before copying it and `done.` when it finishes, replacing the `copied ... (n/m blobs, k metadata)` summary.
