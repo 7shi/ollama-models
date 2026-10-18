@@ -366,18 +366,17 @@ def apply_item(src, dst, item):
             old_digests = blobs_of(dst, json.loads(item["target"].read_bytes()))
         except (OSError, ValueError):
             pass  # unreadable old manifest: skip the orphan cleanup
-    copied = sum(copy_blob(src, dst, d) for d in item["digests"])
-    metas = sum(copy_metadata(src, dst, d) for d in item["digests"])
+    for d in item["digests"]:
+        copy_blob(src, dst, d)
+        copy_metadata(src, dst, d)
     path, target = item["src"], item["target"]
     target.parent.mkdir(parents=True, exist_ok=True)
     tmp = target.with_name(target.name + ".partial")
     shutil.copyfile(path, tmp)
     shutil.copystat(path, tmp)
     os.replace(tmp, target)
-    detail = f"{copied}/{len(item['digests'])} blobs, {metas} metadata"
     if old_digests:
-        detail += f", {remove_orphans(dst, old_digests)} orphaned blobs removed"
-    return detail
+        remove_orphans(dst, old_digests)
 
 
 def copy_models(src, dst, items, yes):
@@ -406,13 +405,16 @@ def copy_models(src, dst, items, yes):
             counts["declined"] += 1
             continue
         else:
+            size = sum(src.blob(d).stat().st_size for d in it["digests"] if src.blob(d).is_file())
+            print(f"{it['name']} ({human_bytes(size)})", end="", flush=True)
             try:
-                detail = apply_item(src, dst, it)
+                apply_item(src, dst, it)
             except OSError as e:
+                print()
                 print(f"error: {it['name']}: {e}", file=sys.stderr)
                 counts["error"] += 1
                 continue
-            print(f"{'updated' if action == 'update' else 'copied'} {it['name']} ({detail})")
+            print(" done.")
         counts[action] += 1
 
     print(f"done: {counts['new']} new, {counts['update']} updated, "
