@@ -31,7 +31,7 @@ cd ollama-models
 uv sync
 ```
 
-**Note**: When using source installation, prefix all commands with `uv run` (e.g., `uv run ollama-models ls`). Without uv, `python -m ollama_models` also works from the checkout.
+**Note**: When using source installation, prefix all commands with `uv run` (e.g., `uv run ollama-models ls`). `python -m ollama_models` works only after the package is installed (e.g., `pip install -e .`), because the version is read from the package metadata.
 
 ## Usage
 
